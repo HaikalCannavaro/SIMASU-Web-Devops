@@ -180,22 +180,27 @@ class DashboardController extends Controller
             : back()->with('error', 'Gagal menghapus pengumuman');
     }
 
+    private function makeEventPayload(array $data): array
+    {
+        return [
+            'title'    => $data['title'],
+            'subtitle' => $data['subtitle'],
+            'location' => $data['location'],
+            'datetime' => Carbon::parse($data['datetime'])->format('Y-m-d H:i'),
+        ];
+    }
+
     /* EVENTS */
     public function storeEvent(Request $request)
     {
         $data = $request->validate([
             'title'    => 'required|string|max:255',
             'subtitle' => 'required|string',
-            'datetime' => 'required',
+            'datetime' => 'required|date|after_or_equal:today',
             'location' => 'required|string|max:255',
         ]);
 
-        $payload = [
-            'title'    => $data['title'],
-            'subtitle' => $data['subtitle'],
-            'location' => $data['location'],
-            'datetime' => Carbon::parse($data['datetime'])->format('Y-m-d H:i'),
-        ];
+        $payload = $this->makeEventPayload($data);
 
         $response = $this->http()->post(
             $this->baseUrl() . '/api/events',
@@ -212,16 +217,11 @@ class DashboardController extends Controller
         $data = $request->validate([
             'title'    => 'required|string|max:255',
             'subtitle' => 'required|string',
-            'datetime' => 'required',
+            'datetime' => 'required|date|after_or_equal:today',
             'location' => 'required|string|max:255',
         ]);
 
-        $payload = [
-            'title'    => $data['title'],
-            'subtitle' => $data['subtitle'],
-            'location' => $data['location'],
-            'datetime' => Carbon::parse($data['datetime'])->format('Y-m-d H:i'),
-        ];
+        $payload = $this->makeEventPayload($data);
 
         $response = $this->http()->put(
             $this->baseUrl() . "/api/events/{$id}",

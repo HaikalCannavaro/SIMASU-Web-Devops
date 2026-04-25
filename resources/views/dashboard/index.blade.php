@@ -395,8 +395,6 @@ window.editAnnouncement = function(data) {
 }
 
 window.editEvent = function(data) {
-    console.log('DEBUG EVENT:', data);
-
     document.getElementById('modalEventTitle').textContent = "Edit Event";
     document.getElementById('formEvent').action =
         "{{ url('dashboard/events') }}/" + data.id;
@@ -406,8 +404,9 @@ window.editEvent = function(data) {
     document.getElementById('event_subtitle').value = data.subtitle ?? '';
     document.getElementById('event_location').value = data.location ?? '';
 
-    if (data.event_date) {
-        const date = new Date(data.event_date);
+    const eventDate = data.event_date ?? data.datetime;
+    if (eventDate) {
+        const date = new Date(eventDate);
 
         const formatted =
             date.getFullYear() + '-' +
@@ -426,6 +425,11 @@ window.editEvent = function(data) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    const eventDateInput = document.getElementById('event_date');
+    if (eventDateInput) {
+        eventDateInput.min = new Date().toISOString().slice(0, 16);
+    }
+
     document.getElementById('modalAnnouncement').addEventListener('hidden.bs.modal', function () {
         document.getElementById('formAnnouncement').reset();
         document.getElementById('formAnnouncement').action = "{{ route('announcements.store') }}";
