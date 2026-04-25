@@ -17,9 +17,26 @@
         @endif
     </div>
 
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-8">
+                <input type="text" id="roomSearch" class="form-control" placeholder="Cari nama ruangan atau lantai...">
+            </div>
+            <div class="col-md-4">
+                <select id="roomStatusFilter" class="form-select">
+                    <option value="all">Semua Status</option>
+                    <option value="tersedia">Tersedia</option>
+                    <option value="dipakai">Dipakai</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
     <div class="row g-4">
         @forelse($rooms as $room)
-        <div class="col-xl-4 col-md-6">
+<div class="col-xl-4 col-md-6 room-card" data-room-name="{{ strtolower($room['name'] . ' ' . $room['floor']) }}" data-room-status="{{ strtolower($room['status']) }}">
             <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px;">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
@@ -46,6 +63,10 @@
 
                     <div class="d-flex align-items-center text-muted small mb-4">
                         <i class="fas fa-users me-2"></i> Kapasitas:
+                        <div class="small text-muted mb-3">
+                            <i class="fas fa-check-circle me-1 text-success"></i>
+                            Fasilitas: {{ Str::limit($room['description'], 45) }}
+                        </div>
                         <strong class="ms-1">{{ $room['capacity'] }} orang</strong>
                     </div>
 
@@ -150,6 +171,23 @@
     let roomModal, detailModal;
 
     document.addEventListener('DOMContentLoaded', function() {
+        const search = document.getElementById('roomSearch');
+        const status = document.getElementById('roomStatusFilter');
+
+        function filterRooms() {
+            const keyword = (search?.value || '').toLowerCase();
+            const selectedStatus = status?.value || 'all';
+
+            document.querySelectorAll('.room-card').forEach(card => {
+                const matchesKeyword = card.dataset.roomName.includes(keyword);
+                const matchesStatus = selectedStatus === 'all' || card.dataset.roomStatus === selectedStatus;
+                card.style.display = matchesKeyword && matchesStatus ? '' : 'none';
+            });
+        }
+
+        search?.addEventListener('input', filterRooms);
+        status?.addEventListener('change', filterRooms);
+
         roomModal = new bootstrap.Modal(document.getElementById('roomModal'));
         detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
     });
@@ -176,6 +214,10 @@
     }
 
     // 2. Simpan / Update Data
+    function validateRoomCapacity(capacity) {
+        return Number.isInteger(capacity) && capacity >= 1;
+    }
+
     function handleSaveRoom(e) {
         e.preventDefault();
 
@@ -190,6 +232,11 @@
             description: document.getElementById('description').value
         };
 
+        if (!validateRoomCapacity(formData.capacity)) {
+            alert('Kapasitas ruangan minimal 1 orang.');
+            return; 
+        }
+        
         let url = isEditMode ? `/ruangan/${id}` : '/ruangan';
         let method = isEditMode ? 'PUT' : 'POST';
         btn.disabled = true;
@@ -258,27 +305,31 @@
             .catch(e => console.error(e));
     }
 
-    // 5. Lihat Detail
+// Helper function biar code lebih rapi dan gampang dibaca SonarQube
+    function formatRoomDetail(room) {
+        return `
+            <h4 class="fw-bold mb-3">${room.name}</h4>
+            <div class="row g-3 mb-3">
+                <div class="col-6">
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem">Lantai</small>
+                    <span class="fs-5">${room.floor}</span>
+                </div>
+                <div class="col-6">
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem">Kapasitas</small>
+                    <span class="fs-5">${room.capacity} Orang</span>
+                </div>
+            </div>
+            <div class="bg-light p-3 rounded border">
+                <small class="text-muted d-block mb-1 fw-bold">Fasilitas</small>
+                <p class="mb-0 text-secondary">${room.description || room.facilities || '-'}</p>
+            </div>
+        `;
+    }
+
+    // 5. Lihat Detail 
     function lihatDetail(id) {
         fetch(`/ruangan/${id}`).then(r => r.json()).then(room => {
-            const content = `
-                <h4 class="fw-bold mb-3">${room.name}</h4>
-                <div class="row g-3 mb-3">
-                    <div class="col-6">
-                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem">Lantai</small>
-                        <span class="fs-5">${room.floor}</span>
-                    </div>
-                    <div class="col-6">
-                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem">Kapasitas</small>
-                        <span class="fs-5">${room.capacity} Orang</span>
-                    </div>
-                </div>
-                <div class="bg-light p-3 rounded border">
-                    <small class="text-muted d-block mb-1 fw-bold">Fasilitas</small>
-                    <p class="mb-0 text-secondary">${room.description || room.facilities || '-'}</p>
-                </div>
-            `;
-            document.getElementById('detailContent').innerHTML = content;
+            document.getElementById('detailContent').innerHTML = formatRoomDetail(room);
             detailModal.show();
         });
     }

@@ -61,7 +61,7 @@ class RuanganController extends Controller
             'name'        => 'required|string|max:255',
             'floor'       => 'required|string',
             'description' => 'required|string', 
-            'capacity'    => 'required|integer|min:0',
+            'capacity'    => 'required|integer|min:1',
         ]);
 
         $baseUrl = config('api.base_url');
@@ -111,7 +111,7 @@ class RuanganController extends Controller
             'name'        => 'required|string|max:255',
             'floor'       => 'required|string',
             'description' => 'required|string',
-            'capacity'    => 'required|integer|min:0',
+            'capacity'    => 'required|integer|min:1',
         ]);
 
         $baseUrl = config('api.base_url');
