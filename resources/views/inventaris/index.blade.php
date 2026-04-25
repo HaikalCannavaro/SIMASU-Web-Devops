@@ -19,13 +19,22 @@
 <div class="card shadow-sm">
     <div class="card-body">
         {{-- Search --}}
-        <div class="mb-3">
-            <input
+        <div class="row g-2 mb-3">
+            <div class="col-md-8">
+                <input
                 type="text"
                 class="form-control"
                 id="searchInput"
-                placeholder="Cari barang..."
-                style="max-width: 400px;">
+                placeholder="Cari barang...">
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="statusFilter">
+                    <option value="all">Semua Status</option>
+                    <option value="tersedia">Tersedia</option>
+                    <option value="terbatas">Terbatas</option>
+                    <option value="habis">Habis</option>
+                </select>
+            </div>
         </div>
 
         {{-- Table --}}
@@ -45,7 +54,10 @@
                 <tbody id="tableBody">
                     @if(isset($inventaris) && count($inventaris) > 0)
                     @foreach($inventaris as $item)
-                    <tr>
+                    @php
+                    $jumlah = $item->jumlah ?? 0;
+                    @endphp
+                    <tr data-status="{{ $jumlah > 10 ? 'tersedia' : ($jumlah > 0 ? 'terbatas' : 'habis') }}">
                         <td class="fw-semibold">
                             {{ $item->nama_barang ?? '-' }}
                         </td>
@@ -57,9 +69,6 @@
                         </td>
                         <td>{{ $item->jumlah ?? 0 }}</td>
                         <td>
-                            @php
-                            $jumlah = $item->jumlah ?? 0;
-                            @endphp
                             @if($jumlah > 10)
                             <span class="badge bg-success">Tersedia</span>
                             @elseif($jumlah > 0)
@@ -205,24 +214,47 @@
         const searchInput = document.getElementById('searchInput');
         const tableBody = document.getElementById('tableBody');
 
-        if (searchInput && tableBody) {
-            searchInput.addEventListener('input', function(e) {
-                const searchTerm = e.target.value.toLowerCase();
-                const rows = tableBody.getElementsByTagName('tr');
-                let visibleCount = 0;
+        function applyInventoryFilter() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedStatus = document.getElementById('statusFilter').value;
+            const rows = tableBody.getElementsByTagName('tr');
+            let visibleCount = 0;
 
-                Array.from(rows).forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    const isVisible = text.includes(searchTerm);
-                    row.style.display = isVisible ? '' : 'none';
-                    if (isVisible && !row.querySelector('td[colspan]')) {
-                        visibleCount++;
-                    }
-                });
-
-                document.getElementById('itemCount').textContent = visibleCount;
+            Array.from(rows).forEach(row => {
+                if (row.querySelector('td[colspan]')) return;
+                const text = row.textContent.toLowerCase();
+                const status = row.dataset.status || '';
+                const matchesSearch = text.includes(searchTerm);
+                const matchesStatus = selectedStatus === 'all' || status === selectedStatus;
+                const isVisible = matchesSearch && matchesStatus;
+                row.style.display = isVisible ? '' : 'none';
+                if (isVisible) visibleCount++;
             });
+
+            document.getElementById('itemCount').textContent = visibleCount;
         }
+
+        searchInput.addEventListener('input', applyInventoryFilter);
+        document.getElementById('statusFilter').addEventListener('change', applyInventoryFilter);
+
+        // if (searchInput && tableBody) {
+        //     searchInput.addEventListener('input', function(e) {
+        //         const searchTerm = e.target.value.toLowerCase();
+        //         const rows = tableBody.getElementsByTagName('tr');
+        //         let visibleCount = 0;
+
+        //         Array.from(rows).forEach(row => {
+        //             const text = row.textContent.toLowerCase();
+        //             const isVisible = text.includes(searchTerm);
+        //             row.style.display = isVisible ? '' : 'none';
+        //             if (isVisible && !row.querySelector('td[colspan]')) {
+        //                 visibleCount++;
+        //             }
+        //         });
+
+        //         document.getElementById('itemCount').textContent = visibleCount;
+        //     });
+        // }
 
         document.querySelectorAll('.btn-edit').forEach(btn => {
             btn.addEventListener('click', function() {
