@@ -63,6 +63,10 @@
 
                     <div class="d-flex align-items-center text-muted small mb-4">
                         <i class="fas fa-users me-2"></i> Kapasitas:
+                        <div class="small text-muted mb-3">
+                            <i class="fas fa-check-circle me-1 text-success"></i>
+                            Fasilitas: {{ Str::limit($room['description'], 45) }}
+                        </div>
                         <strong class="ms-1">{{ $room['capacity'] }} orang</strong>
                     </div>
 
@@ -301,27 +305,31 @@
             .catch(e => console.error(e));
     }
 
-    // 5. Lihat Detail
+// Helper function biar code lebih rapi dan gampang dibaca SonarQube
+    function formatRoomDetail(room) {
+        return `
+            <h4 class="fw-bold mb-3">${room.name}</h4>
+            <div class="row g-3 mb-3">
+                <div class="col-6">
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem">Lantai</small>
+                    <span class="fs-5">${room.floor}</span>
+                </div>
+                <div class="col-6">
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem">Kapasitas</small>
+                    <span class="fs-5">${room.capacity} Orang</span>
+                </div>
+            </div>
+            <div class="bg-light p-3 rounded border">
+                <small class="text-muted d-block mb-1 fw-bold">Fasilitas</small>
+                <p class="mb-0 text-secondary">${room.description || room.facilities || '-'}</p>
+            </div>
+        `;
+    }
+
+    // 5. Lihat Detail 
     function lihatDetail(id) {
         fetch(`/ruangan/${id}`).then(r => r.json()).then(room => {
-            const content = `
-                <h4 class="fw-bold mb-3">${room.name}</h4>
-                <div class="row g-3 mb-3">
-                    <div class="col-6">
-                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem">Lantai</small>
-                        <span class="fs-5">${room.floor}</span>
-                    </div>
-                    <div class="col-6">
-                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem">Kapasitas</small>
-                        <span class="fs-5">${room.capacity} Orang</span>
-                    </div>
-                </div>
-                <div class="bg-light p-3 rounded border">
-                    <small class="text-muted d-block mb-1 fw-bold">Fasilitas</small>
-                    <p class="mb-0 text-secondary">${room.description || room.facilities || '-'}</p>
-                </div>
-            `;
-            document.getElementById('detailContent').innerHTML = content;
+            document.getElementById('detailContent').innerHTML = formatRoomDetail(room);
             detailModal.show();
         });
     }
