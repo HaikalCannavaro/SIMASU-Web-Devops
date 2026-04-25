@@ -112,6 +112,7 @@ class KalenderController extends Controller
             $bookingsByDate = $this->processBookingsByDate($bookings, $currentDate);
 
             $monthlyBookings = $this->getMonthlyBookings($bookings, $currentDate);
+            $bookingSummary = $this->getMonthlyBookingSummary($monthlyBookings);
 
             Log::info('=== FINAL RESULTS ===');
             Log::info('Bookings by Date count: ' . count($bookingsByDate));
@@ -123,6 +124,7 @@ class KalenderController extends Controller
 
             $bookingsByDate = [];
             $monthlyBookings = [];
+            $bookingSummary = ['total' => 0, 'room' => 0, 'inventory' => 0, 'pending' => 0];
             $inventory = [];
             $rooms = [];
         }
@@ -131,6 +133,7 @@ class KalenderController extends Controller
             'currentDate' => $currentDate,
             'bookingsByDate' => $bookingsByDate,
             'monthlyBookings' => $monthlyBookings,
+            'bookingSummary' => $bookingSummary,
             'inventory' => $inventory,
             'rooms' => $rooms,
         ]);
@@ -369,6 +372,16 @@ class KalenderController extends Controller
         return $monthlyBookings;
     }
 
+    private function getMonthlyBookingSummary(array $monthlyBookings): array
+    {
+        return [
+            'total' => count($monthlyBookings),
+            'room' => collect($monthlyBookings)->where('type', 'room')->count(),
+            'inventory' => collect($monthlyBookings)->where('type', 'inventory')->count(),
+            'pending' => collect($monthlyBookings)->where('status', 'pending')->count(),
+        ];
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -389,6 +402,12 @@ class KalenderController extends Controller
 
         $startDateTime = $validated['start_date'] . ' ' . $validated['start_time'];
         $endDateTime = $validated['end_date'] . ' ' . $validated['end_time'];
+
+        if (Carbon::parse($endDateTime)->lessThanOrEqualTo(Carbon::parse($startDateTime))) {
+            return redirect()->route('kalender')
+                ->withInput()
+                ->with('error', 'Waktu selesai harus setelah waktu mulai.');
+        }
 
         $bookingData = [
             'type' => $validated['type'],
@@ -411,12 +430,6 @@ class KalenderController extends Controller
         }
 
         $errorMessage = 'Gagal menambahkan peminjaman';
-
-        if (Carbon::parse($endDateTime)->lessThanOrEqualTo(Carbon::parse($startDateTime))) {
-            return redirect()->route('kalender')
-                ->withInput()
-                ->with('error', 'Waktu selesai harus setelah waktu mulai.');
-        }
 
         if ($response->status() >= 400) {
             $responseData = $response->json();
