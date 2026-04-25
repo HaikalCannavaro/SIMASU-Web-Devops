@@ -11,32 +11,6 @@
         </div>
     </div>
 
-    {{-- ALERT --}}
-    @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    @endif
-
-    @if($errors->any())
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    @endif
-
     <div class="row">
         <div class="col-xl-4 mb-4">
             <div class="card shadow-sm border-0 text-center py-4">
@@ -45,22 +19,22 @@
                         @if(!empty($user->profile_photo))
                             {{-- Jika ada foto, ambil dari URL API --}}
                             <img src="{{ config('api.base_url') . '/' . $user->profile_photo }}" 
-                                 alt="Profile Photo" 
-                                 class="rounded-circle border"
-                                 style="width: 120px; height: 120px; object-fit: cover;">
+                                alt="Profile Photo" 
+                                class="rounded-circle border"
+                                style="width: 120px; height: 120px; object-fit: cover;">
                         @else
                             {{-- Jika tidak ada, pakai inisial --}}
                             <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white mx-auto" 
-                                 style="width: 120px; height: 120px; font-size: 3rem; font-weight: bold;">
-                                 {{ substr($user->name, 0, 2) }}
+                                style="width: 120px; height: 120px; font-size: 3rem; font-weight: bold;">
+                                {{ substr($user->name, 0, 2) }}
                             </div>
                         @endif
                         
                         <form id="formPhoto" action="{{ route('profil.photo') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <label for="photoInput" class="position-absolute bottom-0 end-0 bg-white rounded-circle shadow p-2" 
-                                   style="cursor: pointer; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;"
-                                   title="Ganti Foto">
+                                style="cursor: pointer; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;"
+                                title="Ganti Foto">
                                 <i class="bi bi-camera-fill text-primary"></i>
                             </label>
                             <input type="file" name="photo" id="photoInput" class="d-none" onchange="document.getElementById('formPhoto').submit();">
