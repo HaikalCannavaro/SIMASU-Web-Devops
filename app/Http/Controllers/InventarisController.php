@@ -23,6 +23,7 @@ class InventarisController extends Controller
                 'kategori'     => $item['category'] ?? '-',
                 'jumlah'       => $item['stock'] ?? 0,
                 'status'       => $item['status'] ?? 'Tersedia',
+                'deskripsi'    => $item['description'] ?? '-',
                 'updated_at'   => isset($item['updatedAt']) ? \Carbon\Carbon::parse($item['updatedAt']) : now(),
             ];
         })->sortByDesc('updated_at')->values();
@@ -61,7 +62,9 @@ class InventarisController extends Controller
     {
         $validated = $request->validate([
             'nama_barang' => 'required|string|max:255',
+            'kategori'    => 'required|string|max:100',
             'jumlah'      => 'required|integer|min:0',
+            'deskripsi'   => 'nullable|string|max:1000',
         ]);
         
         $baseUrl = config('api.base_url');
@@ -71,7 +74,9 @@ class InventarisController extends Controller
             ->withToken($token)
             ->put($baseUrl . '/api/inventory/' . $id, [
                 'name'  => $validated['nama_barang'],
+                'category' => $validated['kategori'],
                 'stock' => (int) $validated['jumlah'],
+                'description' => $validated['deskripsi'] ?? '-',
             ]);
         
         if ($response->successful()) {

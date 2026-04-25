@@ -50,6 +50,7 @@
                     <tr>
                         <th>Nama Barang</th>
                         <th>Kategori</th>
+                        <th>Deskripsi</th>
                         <th>Jumlah</th>
                         <th>Status</th>
                         <th>Diperbarui</th>
@@ -62,12 +63,13 @@
                     <tr>
                         <td class="fw-semibold">
                             {{ $item->nama_barang ?? '-' }}
-                            {{-- Menampilkan deskripsi singkat jika ada (opsional) --}}
-                            @if(!empty($item->deskripsi) && $item->deskripsi !== '-')
-                                <br><small class="text-muted" style="font-size: 0.75rem;">{{ Str::limit($item->deskripsi, 30) }}</small>
-                            @endif
                         </td>
                         <td>{{ $item->kategori ?? '-' }}</td>
+                        <td>
+                            <small class="text-muted">
+                                {{ $item->deskripsi ? Str::limit($item->deskripsi, 50) : '-' }}
+                            </small>
+                        </td>
                         <td>{{ $item->jumlah ?? 0 }}</td>
                         <td>
                             @php
@@ -160,6 +162,18 @@
                             required>
                     </div>
 
+                    {{-- Kategori --}}
+                    <div class="mb-3">
+                        <label for="kategori" class="form-label">Kategori <span class="text-danger">*</span></label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="kategori"
+                            name="kategori"
+                            placeholder="Contoh: Perlengkapan Ibadah"
+                            required>
+                    </div>
+
                     {{-- Jumlah --}}
                     <div class="mb-3">
                         <label for="jumlah" class="form-label">Jumlah <span class="text-danger">*</span></label>
@@ -171,6 +185,17 @@
                             min="0"
                             placeholder="0"
                             required>
+                    </div>
+
+                    {{-- Deskripsi --}}
+                    <div class="mb-3">
+                        <label for="deskripsi" class="form-label">Deskripsi</label>
+                        <textarea
+                            class="form-control"
+                            id="deskripsi"
+                            name="deskripsi"
+                            rows="3"
+                            placeholder="Catatan kondisi barang"></textarea>
                     </div>
                 </div>
 
@@ -218,7 +243,9 @@
             btn.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
                 const nama = this.getAttribute('data-nama');
+                const kategori = this.getAttribute('data-kategori');
                 const jumlah = this.getAttribute('data-jumlah');
+                const deskripsi = this.getAttribute('data-deskripsi');
 
                 document.getElementById('modalBarangLabel').textContent = 'Edit Barang';
 
@@ -227,7 +254,9 @@
                 document.getElementById('formMethod').value = 'PUT';
 
                 document.getElementById('namaBarang').value = nama;
+                document.getElementById('kategori').value = kategori;
                 document.getElementById('jumlah').value = jumlah;
+                document.getElementById('deskripsi').value = deskripsi;
                 document.getElementById('itemId').value = id;
 
                 const modal = new bootstrap.Modal(document.getElementById('modalBarang'));
