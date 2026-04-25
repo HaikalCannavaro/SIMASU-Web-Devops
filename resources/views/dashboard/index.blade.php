@@ -15,7 +15,7 @@
 {{-- STAT --}}
 <div class="row g-3 mb-4">
 
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card shadow-sm">
             <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
@@ -33,7 +33,7 @@
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card shadow-sm">
             <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
@@ -51,7 +51,7 @@
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card shadow-sm">
             <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
@@ -64,6 +64,20 @@
                         alt="Anggota"
                         width="28"
                     >
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-warning">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <small class="text-muted">Inventaris Kritis</small>
+                    <h3 class="fw-bold text-warning">{{ $inventarisKritis }}</h3>
+                </div>
+                <div class="bg-warning-subtle p-3 rounded">
+                    <i class="bi bi-exclamation-triangle text-warning fs-4"></i>
                 </div>
             </div>
         </div>
@@ -139,6 +153,8 @@
                         <div>
                             @if ($activity['type'] === 'barang')
                                 <i class="bi bi-box-seam text-success"></i>
+                            @elseif ($activity['type'] === 'booking')
+                                <i class="bi bi-calendar-check text-warning"></i>
                             @else
                                 <i class="bi bi-door-open text-primary"></i>
                             @endif
@@ -364,8 +380,6 @@ window.editAnnouncement = function(data) {
 }
 
 window.editEvent = function(data) {
-    console.log('DEBUG EVENT:', data);
-
     document.getElementById('modalEventTitle').textContent = "Edit Event";
     document.getElementById('formEvent').action =
         "{{ url('dashboard/events') }}/" + data.id;
@@ -375,8 +389,9 @@ window.editEvent = function(data) {
     document.getElementById('event_subtitle').value = data.subtitle ?? '';
     document.getElementById('event_location').value = data.location ?? '';
 
-    if (data.event_date) {
-        const date = new Date(data.event_date);
+    const eventDate = data.event_date ?? data.datetime;
+    if (eventDate) {
+        const date = new Date(eventDate);
 
         const formatted =
             date.getFullYear() + '-' +
@@ -395,6 +410,11 @@ window.editEvent = function(data) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    const eventDateInput = document.getElementById('event_date');
+    if (eventDateInput) {
+        eventDateInput.min = new Date().toISOString().slice(0, 16);
+    }
+
     document.getElementById('modalAnnouncement').addEventListener('hidden.bs.modal', function () {
         document.getElementById('formAnnouncement').reset();
         document.getElementById('formAnnouncement').action = "{{ route('announcements.store') }}";

@@ -21,6 +21,25 @@ class DashboardController extends Controller
         return config('api.base_url');
     }
 
+    private function countLowStockItems($inventory, int $threshold = 5): int
+    {
+        return collect($inventory)->filter(function ($item) use ($threshold) {
+            return (int) ($item['stock'] ?? 0) <= $threshold;
+        })->count();
+    }
+
+    private function mapBookingActivities($bookings)
+    {
+        return collect($bookings)->map(function ($item) {
+            return [
+                'type'        => 'booking',
+                'title'       => 'Permintaan baru masuk',
+                'description' => ($item['item_name'] ?? 'Item') . ' oleh ' . ($item['user_name'] ?? 'User'),
+                'sort_key'    => $item['id'] ?? 0,
+            ];
+        });
+    }
+
     /* DASHBOARD */
     public function index()
     {
@@ -52,9 +71,9 @@ class DashboardController extends Controller
         ->values();
 
         /* COUNTS*/
-        $totalInventaris = count(
-            $http->get($baseUrl . '/api/inventory')->json() ?? []
-        );
+        $inventoryData = $http->get($baseUrl . '/api/inventory')->json() ?? [];
+        $totalInventaris = count($inventoryData);
+        $inventarisKritis = $this->countLowStockItems($inventoryData);
 
         $ruanganTersedia = count(
             $http->get($baseUrl . '/api/rooms')->json() ?? []
@@ -67,9 +86,7 @@ class DashboardController extends Controller
         //AKTIVITAS TERBARU
 
         // INVENTARIS
-        $inventory = collect(
-            $http->get($baseUrl . '/api/inventory')->json() ?? []
-        )->map(function ($item) {
+        $inventory = collect($inventoryData)->map(function ($item) {
             return [
                 'type'        => 'barang',
                 'title'       => 'Barang baru ditambahkan',
@@ -90,9 +107,14 @@ class DashboardController extends Controller
             ];
         });
 
+        $bookingActivities = $this->mapBookingActivities(
+            $http->get($baseUrl . '/api/bookings')->json() ?? []
+        );
+
         // GABUNG + SORT
         $activities = $inventory
             ->merge($rooms)
+            ->merge($bookingActivities)
             ->sortByDesc('sort_key')
             ->take(5)
             ->values();
@@ -102,6 +124,7 @@ class DashboardController extends Controller
             'totalInventaris',
             'ruanganTersedia',
             'anggotaAktif',
+            'inventarisKritis',
             'berita',
             'agenda',
             'activities'
@@ -157,22 +180,27 @@ class DashboardController extends Controller
             : back()->with('error', 'Gagal menghapus pengumuman');
     }
 
+    private function makeEventPayload(array $data): array
+    {
+        return [
+            'title'    => $data['title'],
+            'subtitle' => $data['subtitle'],
+            'location' => $data['location'],
+            'datetime' => Carbon::parse($data['datetime'])->format('Y-m-d H:i'),
+        ];
+    }
+
     /* EVENTS */
     public function storeEvent(Request $request)
     {
         $data = $request->validate([
             'title'    => 'required|string|max:255',
             'subtitle' => 'required|string',
-            'datetime' => 'required',
+            'datetime' => 'required|date|after_or_equal:today',
             'location' => 'required|string|max:255',
         ]);
 
-        $payload = [
-            'title'    => $data['title'],
-            'subtitle' => $data['subtitle'],
-            'location' => $data['location'],
-            'datetime' => Carbon::parse($data['datetime'])->format('Y-m-d H:i'),
-        ];
+        $payload = $this->makeEventPayload($data);
 
         $response = $this->http()->post(
             $this->baseUrl() . '/api/events',
@@ -189,16 +217,11 @@ class DashboardController extends Controller
         $data = $request->validate([
             'title'    => 'required|string|max:255',
             'subtitle' => 'required|string',
-            'datetime' => 'required',
+            'datetime' => 'required|date|after_or_equal:today',
             'location' => 'required|string|max:255',
         ]);
 
-        $payload = [
-            'title'    => $data['title'],
-            'subtitle' => $data['subtitle'],
-            'location' => $data['location'],
-            'datetime' => Carbon::parse($data['datetime'])->format('Y-m-d H:i'),
-        ];
+        $payload = $this->makeEventPayload($data);
 
         $response = $this->http()->put(
             $this->baseUrl() . "/api/events/{$id}",
