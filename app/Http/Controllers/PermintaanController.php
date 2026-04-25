@@ -14,6 +14,31 @@ class PermintaanController extends Controller
         $this->apiBaseUrl = config('api.base_url');
     }
 
+    private function normalizeBookingsResponse($payload): array
+    {
+        if (isset($payload['data']) && is_array($payload['data'])) {
+            return $payload['data'];
+        }
+
+        if (is_array($payload) && array_is_list($payload)) {
+            return $payload;
+        }
+
+        return [];
+    }
+
+    private function buildStatusSummary($bookings): array
+    {
+        $collection = collect($bookings);
+
+        return [
+            'total' => $collection->count(),
+            'pending' => $collection->where('status', 'pending')->count(),
+            'approved' => $collection->where('status', 'approved')->count(),
+            'rejected' => $collection->where('status', 'rejected')->count(),
+        ];
+    }
+
     public function index()
     {
         $token = session('api_token'); 
@@ -21,15 +46,25 @@ class PermintaanController extends Controller
         $response = Http::withToken($token)->get($this->apiBaseUrl . '/api/bookings');
 
         $bookings = [];
+        $statusSummary = ['total' => 0, 'pending' => 0, 'approved' => 0, 'rejected' => 0];
+
         if ($response->successful()) {
             $data = $response->json();
+            $items = $this->normalizeBookingsResponse($data);
 
-            $bookings = collect($data)->sortByDesc(function ($item) {
-                return $item['status'] === 'pending' ? 1 : 0;
+            $bookings = collect($items)->sortBy(function ($item) {
+                return match ($item['status'] ?? '') {
+                    'pending' => 0,
+                    'approved' => 1,
+                    'rejected' => 2,
+                    default => 3,
+                };
             })->values();
+
+            $statusSummary = $this->buildStatusSummary($bookings);
         }
 
-        return view('permintaan.index', compact('bookings'));
+        return view('permintaan.index', compact('bookings', 'statusSummary'));
     }
 
     public function updateStatus(Request $request, $id)
