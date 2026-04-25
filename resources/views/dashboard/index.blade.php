@@ -30,7 +30,7 @@
 {{-- STAT --}}
 <div class="row g-3 mb-4">
 
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card shadow-sm">
             <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
@@ -48,7 +48,7 @@
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card shadow-sm">
             <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
@@ -66,7 +66,7 @@
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card shadow-sm">
             <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
@@ -79,6 +79,20 @@
                         alt="Anggota"
                         width="28"
                     >
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-warning">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <small class="text-muted">Inventaris Kritis</small>
+                    <h3 class="fw-bold text-warning">{{ $inventarisKritis }}</h3>
+                </div>
+                <div class="bg-warning-subtle p-3 rounded">
+                    <i class="bi bi-exclamation-triangle text-warning fs-4"></i>
                 </div>
             </div>
         </div>
