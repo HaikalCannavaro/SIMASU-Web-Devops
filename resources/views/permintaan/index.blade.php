@@ -5,6 +5,42 @@
     <h2 class="mt-4">Daftar Permintaan</h2>
     <p class="text-muted">Kelola permintaan peminjaman ruangan dan inventaris.</p>
 
+    {{-- Ringkasan Status --}}
+    <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <small class="text-muted">Total</small>
+                    <h4>{{ $statusSummary['total'] }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <small class="text-muted">Pending</small>
+                    <h4 class="text-secondary">{{ $statusSummary['pending'] }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <small class="text-muted">Disetujui</small>
+                    <h4 class="text-success">{{ $statusSummary['approved'] }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <small class="text-muted">Ditolak</small>
+                    <h4 class="text-danger">{{ $statusSummary['rejected'] }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Alert Pesan Sukses/Gagal --}}
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -12,6 +48,25 @@
     @if(session('error'))
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
+
+    {{-- Search & Filter --}}
+    <div class="card mb-3 shadow-sm border-0">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <input type="text" id="requestSearch" class="form-control" placeholder="Cari peminjam, item, atau catatan...">
+                </div>
+                <div class="col-md-4">
+                    <select id="requestStatusFilter" class="form-select">
+                        <option value="all">Semua Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Disetujui</option>
+                        <option value="rejected">Ditolak</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="card mb-4 shadow-sm">
         <div class="card-body">
@@ -31,7 +86,7 @@
                     </thead>
                     <tbody>
                         @forelse($bookings as $booking)
-                            <tr>
+                            <tr data-request-row data-status="{{ $booking['status'] }}">
                                 <td>{{ $booking['id'] }}</td>
                                 <td>
                                     <div class="fw-bold">{{ $booking['user_name'] }}</div>
@@ -101,3 +156,26 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const search = document.getElementById('requestSearch');
+        const status = document.getElementById('requestStatusFilter');
+
+        function filterRequestRows() {
+            const keyword = (search?.value || '').toLowerCase();
+            const selectedStatus = status?.value || 'all';
+
+            document.querySelectorAll('[data-request-row]').forEach(row => {
+                const matchesKeyword = row.textContent.toLowerCase().includes(keyword);
+                const matchesStatus = selectedStatus === 'all' || row.dataset.status === selectedStatus;
+                row.style.display = matchesKeyword && matchesStatus ? '' : 'none';
+            });
+        }
+
+        search?.addEventListener('input', filterRequestRows);
+        status?.addEventListener('change', filterRequestRows);
+    });
+</script>
+@endpush
