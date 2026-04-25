@@ -50,7 +50,7 @@ jobs:
       - name: Prepare Laravel environment
         run: |
           cp .env.example .env || touch .env
-          php artisan key:generate --ansi
+          echo "APP_KEY=base64:2n6IKs9az4wR10OkNy3L+qnxpYXxKC8mD2pbAz/lYnc=" >> .env
           mkdir -p database
           touch database/database.sqlite
 
@@ -63,6 +63,7 @@ jobs:
       - name: Run PHPUnit tests with coverage
         env:
           APP_ENV: testing
+          APP_KEY: base64:2n6IKs9az4wR10OkNy3L+qnxpYXxKC8mD2pbAz/lYnc=
           DB_CONNECTION: sqlite
           DB_DATABASE: ':memory:'
         run: php artisan test --coverage-clover=coverage.xml
