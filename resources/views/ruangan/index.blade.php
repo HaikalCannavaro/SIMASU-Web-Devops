@@ -180,7 +180,7 @@
                 card.style.display = matchesKeyword && matchesStatus ? '' : 'none';
             });
         }
-        
+
         search?.addEventListener('input', filterRooms);
         status?.addEventListener('change', filterRooms);
 
@@ -210,6 +210,10 @@
     }
 
     // 2. Simpan / Update Data
+    function validateRoomCapacity(capacity) {
+        return Number.isInteger(capacity) && capacity >= 1;
+    }
+
     function handleSaveRoom(e) {
         e.preventDefault();
 
@@ -224,6 +228,11 @@
             description: document.getElementById('description').value
         };
 
+        if (!validateRoomCapacity(formData.capacity)) {
+            alert('Kapasitas ruangan minimal 1 orang.');
+            return; 
+        }
+        
         let url = isEditMode ? `/ruangan/${id}` : '/ruangan';
         let method = isEditMode ? 'PUT' : 'POST';
         btn.disabled = true;
