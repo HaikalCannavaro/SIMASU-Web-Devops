@@ -168,6 +168,8 @@
                         <div>
                             @if ($activity['type'] === 'barang')
                                 <i class="bi bi-box-seam text-success"></i>
+                            @elseif ($activity['type'] === 'booking')
+                                <i class="bi bi-calendar-check text-warning"></i>
                             @else
                                 <i class="bi bi-door-open text-primary"></i>
                             @endif

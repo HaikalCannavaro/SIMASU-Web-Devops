@@ -28,6 +28,18 @@ class DashboardController extends Controller
         })->count();
     }
 
+    private function mapBookingActivities($bookings)
+    {
+        return collect($bookings)->map(function ($item) {
+            return [
+                'type'        => 'booking',
+                'title'       => 'Permintaan baru masuk',
+                'description' => ($item['item_name'] ?? 'Item') . ' oleh ' . ($item['user_name'] ?? 'User'),
+                'sort_key'    => $item['id'] ?? 0,
+            ];
+        });
+    }
+
     /* DASHBOARD */
     public function index()
     {
@@ -95,9 +107,14 @@ class DashboardController extends Controller
             ];
         });
 
+        $bookingActivities = $this->mapBookingActivities(
+            $http->get($baseUrl . '/api/bookings')->json() ?? []
+        );
+
         // GABUNG + SORT
         $activities = $inventory
             ->merge($rooms)
+            ->merge($bookingActivities)
             ->sortByDesc('sort_key')
             ->take(5)
             ->values();
