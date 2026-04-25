@@ -26,8 +26,8 @@ class InventarisStatusTest extends TestCase
         $response->assertSee('statusFilter');
         $response->assertSee('Terbatas');
         $response->assertSee('Habis');
-        $response->assertSee('data-status="tersedia"', false);
-        $response->assertSee('data-status="terbatas"', false);
-        $response->assertSee('data-status="habis"', false);
+        $response->assertSee('data-status="Tersedia"', false);
+        $response->assertSee('data-status="Terbatas"', false);
+        $response->assertSee('data-status="Habis"', false);
     }
 }
