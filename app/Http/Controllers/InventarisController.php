@@ -7,22 +7,36 @@ use Illuminate\Support\Facades\Http;
 
 class InventarisController extends Controller
 {
+    private function resolveStockStatus(int $stock): string
+    {
+        if ($stock <= 0) {
+            return 'Habis';
+        } elseif ($stock <= 10) {
+            return 'Terbatas';
+        } else {
+            return 'Tersedia';
+        }
+    }
+
     public function index()
     {
         $baseUrl = config('api.base_url');
 
         $http = Http::withoutVerifying()->timeout(5);
         $response = $http->get($baseUrl . '/api/inventory');
-        
+
         $inventaris = collect(
             $response->successful() ? $response->json() : []
         )->map(function ($item) {
+            $stock = (int) ($item['stock'] ?? 0);
+            
             return (object) [
                 'id'           => $item['id'],
-                'nama_barang'  => $item['name'] ?? '-', 
+                'nama_barang'  => $item['name'] ?? '-',
                 'kategori'     => $item['category'] ?? '-',
-                'jumlah'       => $item['stock'] ?? 0,
+                'jumlah'       => $stock,
                 'status'       => $item['status'] ?? 'Tersedia',
+                'status_stok'  => $this->resolveStockStatus($stock),
                 'deskripsi'    => $item['description'] ?? '-',
                 'updated_at'   => isset($item['updatedAt']) ? \Carbon\Carbon::parse($item['updatedAt']) : now(),
             ];

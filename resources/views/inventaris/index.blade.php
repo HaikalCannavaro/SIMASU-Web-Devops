@@ -57,7 +57,7 @@
                     @php
                     $jumlah = $item->jumlah ?? 0;
                     @endphp
-                    <tr data-status="{{ $jumlah > 10 ? 'tersedia' : ($jumlah > 0 ? 'terbatas' : 'habis') }}">
+                    <tr data-status="{{ $item->status_stok ?? 'habis' }}">
                         <td class="fw-semibold">
                             {{ $item->nama_barang ?? '-' }}
                         </td>
@@ -69,12 +69,12 @@
                         </td>
                         <td>{{ $item->jumlah ?? 0 }}</td>
                         <td>
-                            @if($jumlah > 10)
-                            <span class="badge bg-success">Tersedia</span>
-                            @elseif($jumlah > 0)
-                            <span class="badge bg-warning text-dark">Terbatas</span>
+                            @if($item->status_stok === 'Tersedia')
+                                <span class="badge bg-success">Tersedia</span>
+                            @elseif($item->status_stok === 'Terbatas')
+                                <span class="badge bg-warning text-dark">Terbatas</span>
                             @else
-                            <span class="badge bg-danger">Habis</span>
+                                <span class="badge bg-danger">Habis</span>
                             @endif
                         </td>
                         <td>
