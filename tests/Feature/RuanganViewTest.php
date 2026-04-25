@@ -6,20 +6,14 @@ use Tests\TestCase;
 
 class RuanganViewTest extends TestCase
 {
-    // Fungsi ini buat matiin proteksi login sementara
-    protected function setUp(): void
-    {
-        parent::setUp();
-        // Bypass middleware auth 
-        $this->withoutMiddleware();
-    }
 
     /**
      * Test case 1: Pastikan halaman bisa diakses (Status 200)
      */
     public function test_halaman_index_ruangan_berhasil_dimuat()
     {
-        $response = $this->withSession(['user' => ['role' => 'admin']])
+        // Tetap gunakan withSession agar dianggap sudah login
+        $response = $this->withSession(['user' => ['role' => 'admin', 'name' => 'Admin']])
                          ->get('/ruangan');
         
         $response->assertStatus(200);
@@ -31,7 +25,7 @@ class RuanganViewTest extends TestCase
      */
     public function test_terdapat_input_pencarian_untuk_javascript()
     {
-        $response = $this->withSession(['user' => ['role' => 'admin']])
+        $response = $this->withSession(['user' => ['role' => 'admin', 'name' => 'Admin']])
                          ->get('/ruangan');
         
         $response->assertSee('id="roomSearch"', false);
@@ -43,7 +37,7 @@ class RuanganViewTest extends TestCase
      */
     public function test_terdapat_dropdown_filter_status_ruangan()
     {
-        $response = $this->withSession(['user' => ['role' => 'admin']])
+        $response = $this->withSession(['user' => ['role' => 'admin', 'name' => 'Admin']])
                          ->get('/ruangan');
         
         $response->assertSee('id="roomStatusFilter"', false);
@@ -52,13 +46,14 @@ class RuanganViewTest extends TestCase
         $response->assertSee('value="dipakai"', false);
     }
 
-/**
+    /**
      * Test case 4: Edge Case - Pastikan tampilan aman saat tidak ada data ruangan
      */
     public function test_tampilan_saat_data_ruangan_kosong_menampilkan_pesan_yang_sesuai()
     {
-        $response = $this->withSession(['user' => ['role' => 'admin']])
+        $response = $this->withSession(['user' => ['role' => 'admin', 'name' => 'Admin']])
                          ->get('/ruangan');
+
         $response->assertSee('Belum ada ruangan tersedia');
         $response->assertSee('fa-building'); 
     }
