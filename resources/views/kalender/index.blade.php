@@ -23,7 +23,7 @@
                                 class="btn btn-sm btn-outline-secondary">
                                 ← Sebelumnya
                             </a>
-                            <a href="?month={{ now()->month }}&year={{ now()->year }}" class="btn btn-sm btn-outline-success">
+                            <a href="{{ route('kalender') }}" class="btn btn-sm btn-outline-success">
                                 Hari Ini
                             </a>
                             <a href="?month={{ $currentDate->copy()->addMonth()->month }}&year={{ $currentDate->copy()->addMonth()->year }}"
@@ -116,8 +116,31 @@
     </div>
 
     <div class="col-md-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-white border-0 py-3">
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-body">
+                <h6 class="fw-semibold mb-3">Ringkasan Bulan Ini</h6>
+                <div class="row text-center g-2">
+                    <div class="col-6">
+                        <div class="fw-bold">{{ $bookingSummary['total'] ?? 0 }}</div>
+                        <small class="text-muted">Total</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="fw-bold text-warning">{{ $bookingSummary['pending'] ?? 0 }}</div>
+                        <small class="text-muted">Pending</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="fw-bold text-primary">{{ $bookingSummary['room'] ?? 0 }}</div>
+                        <small class="text-muted">Ruangan</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="fw-bold text-danger">{{ $bookingSummary['inventory'] ?? 0 }}</div>
+                        <small class="text-muted">Barang</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0">            <div class="card-header bg-white border-0 py-3">
                 <h6 class="mb-0 fw-semibold">Daftar Peminjaman & Sewa</h6>
             </div>
             <div class="card-body p-0" style="max-height: 600px; overflow-y: auto;">
