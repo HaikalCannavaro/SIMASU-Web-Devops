@@ -17,9 +17,26 @@
         @endif
     </div>
 
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-8">
+                <input type="text" id="roomSearch" class="form-control" placeholder="Cari nama ruangan atau lantai...">
+            </div>
+            <div class="col-md-4">
+                <select id="roomStatusFilter" class="form-select">
+                    <option value="all">Semua Status</option>
+                    <option value="tersedia">Tersedia</option>
+                    <option value="dipakai">Dipakai</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
     <div class="row g-4">
         @forelse($rooms as $room)
-        <div class="col-xl-4 col-md-6">
+<div class="col-xl-4 col-md-6 room-card" data-room-name="{{ strtolower($room['name'] . ' ' . $room['floor']) }}" data-room-status="{{ strtolower($room['status']) }}">
             <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px;">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
@@ -150,6 +167,23 @@
     let roomModal, detailModal;
 
     document.addEventListener('DOMContentLoaded', function() {
+        const search = document.getElementById('roomSearch');
+        const status = document.getElementById('roomStatusFilter');
+
+        function filterRooms() {
+            const keyword = (search?.value || '').toLowerCase();
+            const selectedStatus = status?.value || 'all';
+
+            document.querySelectorAll('.room-card').forEach(card => {
+                const matchesKeyword = card.dataset.roomName.includes(keyword);
+                const matchesStatus = selectedStatus === 'all' || card.dataset.roomStatus === selectedStatus;
+                card.style.display = matchesKeyword && matchesStatus ? '' : 'none';
+            });
+        }
+        
+        search?.addEventListener('input', filterRooms);
+        status?.addEventListener('change', filterRooms);
+
         roomModal = new bootstrap.Modal(document.getElementById('roomModal'));
         detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
     });
