@@ -48,7 +48,15 @@
             </a>
         </li>
     </ul>
-
+    <div class="mt-auto small text-white-50">
+        <div class="fw-semibold text-white">
+            {{ session('user.name', 'Admin SIMASU') }}
+        </div>
+        <div>
+            {{ ucfirst(session('user.role', 'admin')) }}
+        </div>
+        <div class="mt-auto small text-white-50 border-top border-light pt-3">
+    </div>
     <hr class="text-white">
 
     <form method="POST" action="{{ route('logout') }}">
