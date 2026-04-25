@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use Illuminate\Support\ViewErrorBag;
 
 class RuanganValidationTest extends TestCase
 {
@@ -10,6 +11,7 @@ class RuanganValidationTest extends TestCase
     {
         parent::setUp();
         $this->withoutMiddleware();
+        view()->share('errors', new ViewErrorBag);
     }
 
     public function test_tambah_ruangan_gagal_jika_kapasitas_nol()
@@ -23,6 +25,7 @@ class RuanganValidationTest extends TestCase
             ]);
         
         $response->assertStatus(422); 
+        $response->assertJsonValidationErrors(['capacity']);
     }
 
     public function test_update_ruangan_gagal_jika_kapasitas_nol()
@@ -36,6 +39,7 @@ class RuanganValidationTest extends TestCase
             ]);
         
         $response->assertStatus(422); 
+        $response->assertJsonValidationErrors(['capacity']);
     }
 
     public function test_tambah_ruangan_berhasil_jika_kapasitas_minimal_satu()

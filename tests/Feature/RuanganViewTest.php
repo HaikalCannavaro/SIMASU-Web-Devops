@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use Illuminate\Support\ViewErrorBag;
 
 class RuanganViewTest extends TestCase
 {
@@ -10,6 +11,7 @@ class RuanganViewTest extends TestCase
     {
         parent::setUp();
         $this->withoutMiddleware();
+        view()->share('errors', new ViewErrorBag);
     }
 
     public function test_halaman_index_ruangan_berhasil_dimuat()
