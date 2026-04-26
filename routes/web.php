@@ -9,6 +9,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfilController;
 use App\Http\Middleware\CekLoginApi;
 use App\Http\Controllers\PermintaanController;
+use App\Http\Controllers\LaporanController;
 
 Route::get('/', function () {
     if (session()->has('api_token')) {
@@ -70,4 +71,8 @@ Route::middleware([CekLoginApi::class])->group(function () {
     // Permintaan Inventaris
     Route::get('/permintaan', [PermintaanController::class, 'index'])->name('permintaan.index');
     Route::put('/permintaan/{id}/status', [PermintaanController::class, 'updateStatus'])->name('permintaan.update');
+
+    //// Laporan
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/export', [LaporanController::class, 'export'])->name('laporan.export');
 });
