@@ -57,7 +57,7 @@
                     @php
                     $jumlah = $item->jumlah ?? 0;
                     @endphp
-                    <tr data-status="{{ $item->status_stok ?? 'habis' }}">
+                    <tr data-status="{{ $item->status_stok ?? 'Habis' }}">
                         <td class="fw-semibold">
                             {{ $item->nama_barang ?? '-' }}
                         </td>
