@@ -34,6 +34,14 @@
         </li>
 
         <li>
+            <a href="{{ route('laporan.index') }}" class="nav-link text-white {{ request()->routeIs('laporan.*') ? 'active bg-success' : '' }}" >
+                <i class="fas fa-file-alt"></i>
+                <img src="{{ asset('icons/document.png') }}" width="18" class="me-2">
+                <span>Laporan</span>
+            </a>
+        </li>
+
+        <li>
             <a href="{{ route('profil') }}" class="nav-link text-white {{ request()->routeIs('profil') ? 'active bg-success' : '' }}">
                 <img src="{{ asset('icons/user.png') }}" width="18" class="me-2">
                 Profil
