@@ -121,6 +121,10 @@
                         <div class="fw-semibold"><i class="bi bi-inbox me-2 text-info"></i>Permintaan</div>
                         <small class="text-muted">Review permintaan peminjaman.</small>
                     </a>
+                    <a href="{{ route('notifikasi.index') }}" class="list-group-item list-group-item-action command-palette-item" data-command-keywords="notifikasi admin stok kritis booking pending event">
+                        <div class="fw-semibold"><i class="bi bi-bell me-2 text-warning"></i>Notifikasi</div>
+                        <small class="text-muted">Pantau stok kritis, booking pending, dan event terdekat.</small>
+                    </a>
                     <a href="{{ route('profil') }}" class="list-group-item list-group-item-action command-palette-item" data-command-keywords="profil akun admin password foto">
                         <div class="fw-semibold"><i class="bi bi-person-circle me-2 text-secondary"></i>Profil</div>
                         <small class="text-muted">Kelola data akun admin.</small>

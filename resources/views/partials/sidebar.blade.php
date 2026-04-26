@@ -33,6 +33,14 @@
             </a>
         </li>
 
+
+        <li>
+            <a href="{{ route('notifikasi.index') }}" class="nav-link text-white {{ request()->routeIs('notifikasi*') ? 'active bg-success' : '' }}">
+                <i class="bi bi-bell me-2"></i>
+                Notifikasi
+            </a>
+        </li>
+
         <li>
             <a href="{{ route('laporan.index') }}" class="nav-link text-white {{ request()->routeIs('laporan.*') ? 'active bg-success' : '' }}" >
                 <i class="fas fa-file-alt"></i>

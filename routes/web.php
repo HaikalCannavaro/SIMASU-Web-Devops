@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfilController;
 use App\Http\Middleware\CekLoginApi;
 use App\Http\Controllers\PermintaanController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\NotifikasiController;
 
 Route::get('/', function () {
     if (session()->has('api_token')) {
@@ -60,6 +61,9 @@ Route::middleware([CekLoginApi::class])->group(function () {
     Route::put('/kalender/{id}/status', [KalenderController::class, 'updateStatus'])->name('kalender.update-status');
     Route::delete('/kalender/{id}', [KalenderController::class, 'destroy'])->name('kalender.destroy');
     Route::get('/kalender/{id}', [KalenderController::class, 'show'])->name('kalender.show');
+
+    // Notifikasi Admin
+    Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
 
     // Profil
     Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
