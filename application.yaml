@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: simasu-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/IndraYuda13/APITubes2.git' # Menembak langsung ke repo API
+    targetRevision: HEAD
+    path: kubernetes # Folder tempat file YAML milik Yudha berada
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: myapp # Namespace target proyek kalian
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
