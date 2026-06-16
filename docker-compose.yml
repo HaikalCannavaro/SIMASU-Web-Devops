@@ -1,0 +1,59 @@
+services:
+  # Backend Laravel Service
+  backend:
+    image: ${DOCKERHUB_USERNAME:-indrayuda}/simasu-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simasu-backend
+    restart: unless-stopped
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=base64:2n6IKs9az4wR10OkNy3L+qnxpYXxKC8mD2pbAz/lYnc=
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=simasu
+      - DB_USERNAME=simasu_user
+      - DB_PASSWORD=simasu_password
+      - SESSION_DRIVER=file
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Frontend Nginx Service
+  frontend:
+    image: ${DOCKERHUB_USERNAME:-indrayuda}/simasu-web:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: simasu-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  # Database MySQL Service
+  db:
+    image: mysql:8.0
+    container_name: simasu-db
+    restart: unless-stopped
+    environment:
+      - MYSQL_DATABASE=simasu
+      - MYSQL_USER=simasu_user
+      - MYSQL_PASSWORD=simasu_password
+      - MYSQL_ROOT_PASSWORD=root_password_change_me
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-usimasu_user", "-psimasu_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db_data:
